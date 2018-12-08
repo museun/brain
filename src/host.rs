@@ -11,15 +11,18 @@ pub struct Server<'a> {
 impl<'a> Server<'a> {
     pub fn new(addr: &str, markov: &'a Markov<'a>) -> Self {
         let server = HttpServer::http(addr).unwrap();
-        eprintln!("hosting at http://{}", addr);
+        println!("hosting at http://{}", addr);
         Self { server, markov }
     }
+
     pub fn start(&mut self) {
         let mut rng = thread_rng();
 
+        // TODO use async/await for this
         for req in self.server.incoming_requests() {
             match (req.method(), req.url()) {
                 (&Method::Get, "/markov/next") => {
+                    timeit!("generate response");
                     let data = self.markov.generate(&mut rng);
                     let resp = Response::from_string(data);
                     let _ = req.respond(resp);

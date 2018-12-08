@@ -2,105 +2,125 @@ use std::io::{BufReader, Read};
 use std::process;
 use std::{env, fs};
 
-use getopts::Options;
-
 use brain::*;
 
-fn print_usage(program: &str, opts: &Options) {
-    let brief = format!("Usage: {} -f|-t|-l", program);
-    eprintln!("{}", opts.usage(&brief));
-    process::exit(1);
+struct Options {
+    input: Option<String>,
+    output: Option<String>,
+    address: Option<String>,
+    depth: Option<String>,
+
+    action: Action,
 }
 
-fn err_and_usage(program: &str, msg: &str, opts: &Options) {
-    eprintln!("error: {}", msg);
-    print_usage(program, opts);
+enum Action {
+    Load,
+    Train,
 }
 
-// TODO rewrite this
-fn main() {
-    let args: Vec<_> = env::args().collect();
-    let program = args[0].clone();
+impl Options {
+    fn parse() -> Self {
+        let (name, args) = {
+            let mut args = env::args();
+            (args.next().unwrap(), args.collect::<Vec<_>>())
+        };
 
-    let mut opts = Options::new();
-    opts.optflag("h", "help", "prints the usage");
-    opts.optflag("t", "train", "enable training mode");
-    opts.optflag("l", "load", "enable loading mode");
+        let mut opts = getopts::Options::new();
+        opts.optflag("h", "help", "prints the usage");
+        opts.optflag("t", "train", "enable training mode");
+        opts.optflag("l", "load", "enable loading mode");
 
-    opts.optmulti("i", "input", "an input file", "INPUT");
-    opts.optopt("o", "output", "the output file", "OUTPUT");
-    opts.optopt("d", "depth", "n-gram size", "DEPTH");
-    opts.optopt("s", "save", "save duration in minutes", "SAVE");
+        opts.optmulti("i", "input", "an input file", "INPUT");
+        opts.optopt("o", "output", "the output file", "OUTPUT");
+        opts.optopt("d", "depth", "n-gram size", "DEPTH");
+        opts.optopt("s", "save", "save duration in minutes", "SAVE");
 
-    opts.optopt("a", "address", "the address to bind to", "ADDRESS");
+        opts.optopt("a", "address", "the address to bind to", "ADDRESS");
 
-    let matches = match opts.parse(&args[1..]) {
-        Ok(m) => m,
-        Err(err) => {
-            eprintln!("{}", err);
-            return;
+        let matches = opts.parse(&args).unwrap();
+        if matches.opt_present("h") {
+            let brief = format!("Usage: {} -f|-t|-l", name);
+            eprintln!("{}", opts.usage(&brief));
+            process::exit(1);
         }
-    };
 
-    if matches.opt_present("h") {
-        print_usage(&program, &opts);
+        let action = match (matches.opt_present("t"), matches.opt_present("i")) {
+            (true, false) => Action::Train,
+            (false, true) => Action::Load,
+            _ => {
+                let brief = format!("Usage: {} -f|-t|-l", name);
+                eprintln!("{}", opts.usage(&brief));
+                process::exit(1);
+            }
+        };
+
+        Self {
+            input: matches.opt_str("i"),
+            output: matches.opt_str("o"),
+            address: matches.opt_str("a"),
+            depth: matches.opt_str("d"),
+            action,
+        }
     }
 
-    if matches.opt_present("t") {
-        let input = matches.opt_str("i");
-        if input.is_none() {
-            err_and_usage(&program, "input file must be specified", &opts);
-        }
-        let input = input.unwrap();
+    fn die(&self, msg: impl AsRef<str>) -> ! {
+        eprintln!("error: {}", msg.as_ref());
+        process::exit(1);
+    }
+}
 
-        let output = matches.opt_str("o");
-        let output = if output.is_none() {
-            eprintln!("!! assuming you want brain.db");
-            "brain.db".into()
-        } else {
-            output.unwrap()
-        };
+fn train(opts: Options) {
+    let input = match opts.input {
+        Some(input) => input,
+        None => opts.die("input file must be specified"),
+    };
 
-        let depth = if matches.opt_present("d") {
-            let d = matches.opt_str("d").unwrap();
-            d.parse().unwrap()
-        } else {
-            5
-        };
+    let output = opts.output.unwrap_or_else(|| {
+        eprintln!("!! assuming you want brain.db");
+        "brain.db".into()
+    });
 
-        train(&input, &output, depth);
-        return;
-    } else if matches.opt_present("l") {
-        let input = matches.opt_str("i");
-        let input = if input.is_none() {
-            eprintln!("!! assuming you want brain.db");
-            "brain.db".into()
-        } else {
-            input.unwrap()
-        };
+    let depth = opts
+        .depth
+        .map(|d| d.parse::<usize>())
+        .unwrap_or_else(|| Ok(5))
+        .unwrap();
 
-        let file = {
-            timeit!("reading {}", input);
-            let size = get_file_size(&input).unwrap();
-            eprintln!("size: {} KB", size.comma_separate());
-            fs::File::open(&input).unwrap()
-        };
+    brain::train(&input, &output, depth);
+}
 
-        let mut buf = Vec::with_capacity(file.metadata().unwrap().len() as usize);
-        let mut reader = BufReader::new(file);
-        let _ = reader.read_to_end(&mut buf);
+// TODO don't panic here
+fn load(opts: Options) {
+    let input = opts.input.unwrap_or_else(|| {
+        eprintln!("!! assuming you want brain.db");
+        "brain.db".into()
+    });
 
-        let markov = load(&input, &buf);
+    let file = {
+        timeit!("reading {}", input);
+        let size = get_file_size(&input).unwrap();
+        eprintln!("size: {} KB", size.comma_separate());
+        fs::File::open(&input).unwrap()
+    };
 
-        let address = if matches.opt_present("a") {
-            matches.opt_str("a").unwrap()
-        } else {
-            "localhost:7878".into()
-        };
+    let mut buf = Vec::with_capacity(file.metadata().unwrap().len() as usize);
+    let mut reader = BufReader::new(file);
+    reader.read_to_end(&mut buf).expect("to read file");
 
-        let mut server = Server::new(&address, &markov);
-        server.start();
-    } else {
-        print_usage(&program, &opts)
+    let markov = brain::load(&input, &buf);
+    let address = opts
+        .address
+        .unwrap_or_else(|| "localhost:7878".into())
+        .clone();
+    let mut server = Server::new(&address, &markov);
+    server.start();
+}
+
+fn main() {
+    let opts = Options::parse();
+
+    match opts.action {
+        Action::Train => train(opts),
+        Action::Load => load(opts),
     }
 }

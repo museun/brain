@@ -1,11 +1,9 @@
+use hashbrown::HashMap;
 use rand::Rng;
 use serde_derive::{Deserialize, Serialize};
 
 use std::cmp::{min, Ordering};
-use std::collections::HashMap;
 use std::ops::{Deref, DerefMut};
-
-use crate::util::*;
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Markov<'a> {
@@ -30,17 +28,17 @@ impl<'a> Markov<'a> {
             .split_terminator(|c| ".?!\n".contains(c))
             .map(|s| s.trim())
             .map(|s| s.split_whitespace().collect::<Vec<_>>())
-            .filter(|s| !s.is_empty())
-            .collect::<Vec<_>>();
+            .filter(|s| !s.is_empty());
+        //     .collect::<Vec<_>>();
 
-        let max: usize = data.iter().map(|d| d.len()).sum();
-        eprintln!(
-            "lines: {}, words: {}",
-            data.len().comma_separate(),
-            max.comma_separate()
-        );
+        // let max: usize = data.iter().map(|d| d.len()).sum();
+        // eprintln!(
+        //     "lines: {}, words: {}",
+        //     data.len().comma_separate(),
+        //     max.comma_separate()
+        // );
 
-        data.iter().for_each(|s| self.train_words(&s));
+        data.for_each(|s| self.train_words(&s));
     }
 
     fn train_words(&mut self, words: &[&'a str]) {
@@ -59,7 +57,7 @@ impl<'a> Markov<'a> {
             for window in windows {
                 self.train_link(
                     &window[..window.len() - 1],
-                    &Token::Word(window.last().expect("to get last window")),
+                    &Token::Word(window.last().expect("get last window")),
                 );
             }
 
@@ -79,7 +77,7 @@ impl<'a> Markov<'a> {
 
     pub fn generate(&self, rng: &mut impl Rng) -> String {
         let mut words: Vec<&'a str> = vec![];
-        let start = rng.choose(&self.entry_points).expect("to push start seed");
+        let start = rng.choose(&self.entry_points).expect("push start seed");
         words.push(*start);
 
         fn context<'a, 'b>(words: &'a [&'b str], depth: usize) -> &'a [&'b str] {
@@ -129,7 +127,6 @@ impl<'a> Markov<'a> {
         let total_count: usize = links.iter().map(|l| l.count).sum();
         links
             .iter()
-            .cloned()
             .cycle()
             .skip(rng.gen::<usize>() % total_count)
             .scan(total_count, |remaining, link| {
@@ -139,17 +136,18 @@ impl<'a> Markov<'a> {
             .filter(|(remaining, _)| *remaining == 0)
             .map(|(_, link)| link)
             .next()
-            .expect("to get next weighted")
+            .expect("get next weighted")
+            .clone()
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, PartialOrd, Eq)]
 pub enum Token<'a> {
     Word(&'a str),
     End,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialOrd, Eq)]
 pub struct Link<'a> {
     #[serde(borrow)]
     pub token: Token<'a>,
@@ -170,14 +168,6 @@ impl<'a> Link<'a> {
 impl<'a> PartialEq for Link<'a> {
     fn eq(&self, rhs: &Self) -> bool {
         self.count.eq(&rhs.count)
-    }
-}
-
-impl<'a> Eq for Link<'a> {}
-
-impl<'a> PartialOrd for Link<'a> {
-    fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
-        Some(self.cmp(rhs))
     }
 }
 

@@ -3,6 +3,7 @@ use std::fs;
 use crate::markov::Markov;
 use crate::util::*;
 
+// TODO don't panic here
 pub fn train(input: &str, output: &str, depth: usize) {
     let data = {
         timeit!("reading {}", input);

@@ -1,6 +1,6 @@
 use std::fmt::Write;
 use std::fs;
-
+use std::path::Path;
 use std::time::Instant;
 
 #[macro_export]
@@ -46,9 +46,10 @@ impl Drop for Measure {
     }
 }
 
-pub fn get_file_size(f: &str) -> Option<u64> {
-    let data = fs::metadata(&f).ok()?;
-    Some(data.len() / 1024)
+pub fn get_file_size(path: impl AsRef<Path>) -> Option<u64> {
+    fs::metadata(path.as_ref())
+        .ok()
+        .and_then(|s| Some(s.len() / 1024))
 }
 
 pub trait CommaSeparated {
