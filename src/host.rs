@@ -1,7 +1,7 @@
 use rand::thread_rng;
 use tiny_http::{Method, Response, Server as HttpServer};
 
-use markov::Markov;
+use crate::markov::Markov;
 
 pub struct Server<'a> {
     server: HttpServer,

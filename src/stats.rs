@@ -1,7 +1,7 @@
 use sysinfo::{self, ProcessExt, SystemExt};
 
-use markov::Markov;
-use util::*;
+use crate::markov::Markov;
+use crate::util::*;
 
 #[derive(Debug, Serialize)]
 pub struct Stats {

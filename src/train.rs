@@ -2,9 +2,9 @@ use std::fs;
 
 use bincode;
 
-use markov::Markov;
-use stats::Stats;
-use util::*;
+use crate::markov::Markov;
+use crate::stats::Stats;
+use crate::util::*;
 
 pub fn train(input: &str, output: &str, depth: usize) {
     let data = {

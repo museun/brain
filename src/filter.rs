@@ -3,7 +3,7 @@ use std::io::prelude::*;
 
 use regex::Regex;
 
-use util::*;
+use crate::util::*;
 
 // TODO load these from an external source
 lazy_static! {

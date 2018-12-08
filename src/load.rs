@@ -1,9 +1,9 @@
 use bincode;
 
-use markov::Markov;
-use stats::Stats;
+use crate::markov::Markov;
+use crate::stats::Stats;
 
-use util::*;
+use crate::util::*;
 
 pub fn load<'a>(input: &str, buf: &'a [u8]) -> Markov<'a> {
     let markov: Markov = {

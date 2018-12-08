@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::ops::{Deref, DerefMut};
 
-use util::*;
+use crate::util::*;
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct Markov<'a> {
