@@ -1,8 +1,8 @@
 use rand::Rng;
+use serde_derive::{Deserialize, Serialize};
 
 use std::cmp::{min, Ordering};
 use std::collections::HashMap;
-use std::iter::FromIterator;
 use std::ops::{Deref, DerefMut};
 
 use crate::util::*;
@@ -68,8 +68,7 @@ impl<'a> Markov<'a> {
     }
 
     fn train_link(&mut self, context: &[&'a str], token: &Token<'a>) {
-        let ctx = Vec::from_iter(context.into_iter().map(|s| *s));
-
+        let ctx = context.to_vec();
         if let Some(link_set) = self.chain.get_mut(&ctx) {
             link_set.insert(&token);
             return;
@@ -99,7 +98,7 @@ impl<'a> Markov<'a> {
         let depth = min(self.depth, context.len());
 
         let link_sets = (1..=depth).filter_map(|width| {
-            let s = Vec::from_iter(subcontext(width).into_iter().map(|f| *f));
+            let s = subcontext(width).to_vec();
             self.chain.get(&s).map(|link_set| (width, link_set))
         });
 

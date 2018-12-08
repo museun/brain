@@ -1,9 +1,6 @@
 use std::fs;
 
-use bincode;
-
 use crate::markov::Markov;
-use crate::stats::Stats;
 use crate::util::*;
 
 pub fn train(input: &str, output: &str, depth: usize) {
@@ -29,10 +26,4 @@ pub fn train(input: &str, output: &str, depth: usize) {
         let size = get_file_size(&output).unwrap();
         eprintln!("size: {} KB", size.comma_separate());
     }
-
-    let stats = Stats::new(&markov);
-    eprintln!("contexts: {} ", stats.chain_keys.comma_separate());
-    eprintln!("links: {}", stats.link_sets.comma_separate());
-    eprintln!("entry points: {}", stats.entry_points.comma_separate());
-    eprintln!("mem used: {} KB", stats.process_memory.comma_separate());
 }
