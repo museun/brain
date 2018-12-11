@@ -5,11 +5,11 @@ use crate::markov::Markov;
 
 pub struct Server<'a> {
     server: HttpServer,
-    markov: &'a Markov<'a>,
+    markov: Markov<'a>,
 }
 
 impl<'a> Server<'a> {
-    pub fn new(addr: &str, markov: &'a Markov<'a>) -> Self {
+    pub fn new(addr: &str, markov: Markov<'a>) -> Self {
         let server = HttpServer::http(addr).unwrap();
         println!("hosting at http://{}", addr);
         Self { server, markov }

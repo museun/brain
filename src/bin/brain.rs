@@ -111,7 +111,7 @@ fn load(opts: Options) {
         .address
         .unwrap_or_else(|| "localhost:7878".into())
         .clone();
-    let mut server = Server::new(&address, &markov);
+    let mut server = Server::new(&address, markov);
     server.start();
 }
 
