@@ -5,20 +5,22 @@ use serde_derive::{Deserialize, Serialize};
 use std::cmp::{min, Ordering};
 use std::ops::{Deref, DerefMut};
 
+//148671087
+
 #[derive(Default, Serialize, Deserialize)]
 pub struct Markov<'a> {
     #[serde(borrow)]
-    pub(crate) chain: HashMap<Vec<&'a str>, LinkSet<'a>>,
-    pub(crate) entry_points: Vec<&'a str>,
-    pub(crate) depth: usize,
-    pub(crate) brain_file: &'a str,
+    chain: HashMap<Vec<&'a str>, LinkSet<'a>>,
+    entries: Vec<&'a str>,
+    depth: usize,
+    brain: &'a str,
 }
 
 impl<'a> Markov<'a> {
-    pub fn with_depth(depth: usize, brain_file: &'a str) -> Self {
+    pub fn with_depth(depth: usize, brain: &'a str) -> Self {
         Markov {
             depth,
-            brain_file,
+            brain,
             ..Default::default()
         }
     }
@@ -29,32 +31,23 @@ impl<'a> Markov<'a> {
             .map(|s| s.trim())
             .map(|s| s.split_whitespace().collect::<Vec<_>>())
             .filter(|s| !s.is_empty());
-        //     .collect::<Vec<_>>();
-
-        // let max: usize = data.iter().map(|d| d.len()).sum();
-        // eprintln!(
-        //     "lines: {}, words: {}",
-        //     data.len().comma_separate(),
-        //     max.comma_separate()
-        // );
 
         data.for_each(|s| self.train_words(&s));
     }
 
     fn train_words(&mut self, words: &[&'a str]) {
         let depth = min(self.depth, words.len() - 1);
-        if !self.entry_points.iter().any(|s| *s == words[0]) {
+        if !self.entries.iter().any(|s| *s == words[0]) {
             let start = &words[0].trim_left_matches(|c: char| !c.is_alphabetic());
             if start.is_empty() {
                 return;
             }
 
-            self.entry_points.push(start);
+            self.entries.push(start);
         }
 
         for width in 1..=depth {
-            let windows = words.windows(width + 1);
-            for window in windows {
+            for window in words.windows(width + 1) {
                 self.train_link(
                     &window[..window.len() - 1],
                     &Token::Word(window.last().expect("get last window")),
@@ -77,7 +70,7 @@ impl<'a> Markov<'a> {
 
     pub fn generate(&self, rng: &mut impl Rng) -> String {
         let mut words: Vec<&'a str> = vec![];
-        let start = rng.choose(&self.entry_points).expect("push start seed");
+        let start = rng.choose(&self.entries).expect("push start seed");
         words.push(*start);
 
         fn context<'a, 'b>(words: &'a [&'b str], depth: usize) -> &'a [&'b str] {
@@ -180,6 +173,23 @@ impl<'a> Ord for Link<'a> {
 #[derive(Serialize, Deserialize, Default)]
 pub struct LinkSet<'a>(#[serde(borrow)] Vec<Link<'a>>);
 
+impl<'a> LinkSet<'a> {
+    pub fn insert(&mut self, token: &Token<'a>) {
+        let link = Link::from(token.clone());
+
+        if let Some(existing) = self.existing(&token) {
+            existing.merge(&link);
+            self.sort_unstable_by(|a, b| b.cmp(a)); // reverse
+        } else {
+            self.push(link);
+        }
+    }
+
+    fn existing(&mut self, token: &Token<'a>) -> Option<&mut Link<'a>> {
+        self.iter_mut().find(|l| l.token == *token)
+    }
+}
+
 impl<'a> Deref for LinkSet<'a> {
     type Target = Vec<Link<'a>>;
 
@@ -193,22 +203,5 @@ impl<'a> DerefMut for LinkSet<'a> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         let LinkSet(vector) = self;
         vector
-    }
-}
-
-impl<'a> LinkSet<'a> {
-    fn existing(&mut self, token: &Token<'a>) -> Option<&mut Link<'a>> {
-        self.iter_mut().find(|l| l.token == *token)
-    }
-
-    pub fn insert(&mut self, token: &Token<'a>) {
-        let link = Link::from(token.clone());
-
-        if let Some(existing) = self.existing(&token) {
-            existing.merge(&link);
-            self.sort_unstable_by(|a, b| b.cmp(a)); // reverse
-        } else {
-            self.push(link);
-        }
     }
 }
