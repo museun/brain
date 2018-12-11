@@ -33,22 +33,21 @@ impl Options {
         opts.optmulti("i", "input", "an input file", "INPUT");
         opts.optopt("o", "output", "the output file", "OUTPUT");
         opts.optopt("d", "depth", "n-gram size", "DEPTH");
-        opts.optopt("s", "save", "save duration in minutes", "SAVE");
 
         opts.optopt("a", "address", "the address to bind to", "ADDRESS");
 
         let matches = opts.parse(&args).unwrap();
         if matches.opt_present("h") {
-            let brief = format!("Usage: {} -f|-t|-l", name);
+            let brief = format!("Usage: {} -t|-l", name);
             eprintln!("{}", opts.usage(&brief));
             process::exit(1);
         }
 
-        let action = match (matches.opt_present("t"), matches.opt_present("i")) {
+        let action = match (matches.opt_present("t"), matches.opt_present("l")) {
             (true, false) => Action::Train,
             (false, true) => Action::Load,
             _ => {
-                let brief = format!("Usage: {} -f|-t|-l", name);
+                let brief = format!("Usage: {} -t|-l", name);
                 eprintln!("{}", opts.usage(&brief));
                 process::exit(1);
             }
