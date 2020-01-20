@@ -1,5 +1,5 @@
 use hashbrown::HashMap;
-use rand::Rng;
+use rand::prelude::*;
 use serde_derive::{Deserialize, Serialize};
 
 use std::cmp::{min, Ordering};
@@ -70,7 +70,7 @@ impl<'a> Markov<'a> {
 
     pub fn generate(&self, rng: &mut impl Rng) -> String {
         let mut words: Vec<&'a str> = vec![];
-        let start = rng.choose(&self.entries).expect("push start seed");
+        let start = self.entries.choose(rng).expect("push start seed");
         words.push(*start);
 
         fn context<'a, 'b>(words: &'a [&'b str], depth: usize) -> &'a [&'b str] {
