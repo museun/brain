@@ -38,7 +38,7 @@ impl<'a> Markov<'a> {
     fn train_words(&mut self, words: &[&'a str]) {
         let depth = min(self.depth, words.len() - 1);
         if !self.entries.iter().any(|s| *s == words[0]) {
-            let start = &words[0].trim_left_matches(|c: char| !c.is_alphabetic());
+            let start = &words[0].trim_start_matches(|c: char| !c.is_alphabetic());
             if start.is_empty() {
                 return;
             }
