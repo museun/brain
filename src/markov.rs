@@ -1,9 +1,11 @@
-use hashbrown::HashMap;
 use rand::prelude::*;
 use serde_derive::{Deserialize, Serialize};
+use twox_hash::RandomXxHashBuilder64;
 
 use std::cmp::{min, Ordering};
 use std::ops::{Deref, DerefMut};
+
+pub type HashMap<K, V> = std::collections::HashMap<K, V, RandomXxHashBuilder64>;
 
 //148671087
 
