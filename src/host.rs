@@ -1,4 +1,5 @@
-use rand::thread_rng;
+use rand::{rngs::SmallRng, SeedableRng};
+
 use tiny_http::{Method, Response, Server as HttpServer};
 
 use crate::markov::Markov;
@@ -16,7 +17,7 @@ impl<'a> Server<'a> {
     }
 
     pub fn start(&mut self) {
-        let mut rng = thread_rng();
+        let mut rng = SmallRng::from_entropy();
 
         // TODO use async/await for this
         for req in self.server.incoming_requests() {

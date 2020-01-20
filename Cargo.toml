@@ -5,7 +5,7 @@ edition = "2018"
 authors = ["museun <museun@outlook.com>"]
 
 [dependencies]
-rand = "0.7.3"
+rand = { version = "0.7.3", default-features = false, features = ["small_rng"] }
 getopts = "0.2.21"
 tiny_http = "0.6.2"
 serde = { version = "1.0.104", features = ["derive"] }
