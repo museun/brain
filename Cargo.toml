@@ -1,13 +1,2 @@
-[package]
-name = "brain"
-version = "0.1.0"
-edition = "2018"
-authors = ["museun <museun@outlook.com>"]
-
-[dependencies]
-rand = { version = "0.7.3", default-features = false, features = ["small_rng"] }
-getopts = "0.2.21"
-tiny_http = "0.6.2"
-serde = { version = "1.0.104", features = ["derive"] }
-bincode = "1.2.1"
-twox-hash = "1.5.0"
+[workspace]
+members = ["brain", "client", "config", "markov", "server"]

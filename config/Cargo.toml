@@ -1,0 +1,15 @@
+[package]
+name = "config"
+version = "0.1.0"
+authors = ["museun <museun@outlook.com>"]
+edition = "2018"
+
+[dependencies]
+markov = { path = "../markov" }
+
+hashbrown = { version = "0.6.3", features = ["serde"] }
+serde = { version = "1.0.104", features = ["derive"] }
+tokio = { version = "0.2.10", default-features = false, features = ["fs"] }
+toml = { version = "0.5.6", features = ["preserve_order"] }
+tracing = "0.1.12"
+

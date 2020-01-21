@@ -1,0 +1,13 @@
+[package]
+name = "markov"
+version = "0.1.0"
+authors = ["museun <museun@outlook.com>"]
+edition = "2018"
+
+[dependencies]
+bincode = "1.2.1"
+hashbrown = { version = "0.6.3", features = ["serde"] }
+rand = "0.7.3"
+serde = { version = "1.0.104", features = ["derive"] }
+snap = "0.2.5"
+tracing = "0.1.12"

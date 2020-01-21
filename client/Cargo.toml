@@ -1,0 +1,10 @@
+[package]
+name = "client"
+version = "0.1.0"
+authors = ["museun <museun@outlook.com>"]
+edition = "2018"
+
+[dependencies]
+server = {path = "../server" }
+reqwest = { version = "0.10.1", default-features = false, features = ["json", "stream"] }
+futures = { version = "0.3.1", default-features = false }

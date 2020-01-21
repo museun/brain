@@ -1,0 +1,17 @@
+# name of the brain 
+# will be the route in the http api
+# must match the name in the db
+[brains.testing]
+# file to load/save from/to
+brain_file = "testing.db"
+
+# is this read-only (can it be retrained?)
+# if this is true then:
+# * the server may write to the file
+# * the server may retrain the in memory db
+read_only = false
+
+# example of a 2nd brain
+[brains.shakespeare]
+brain_file = "the_works_of_shakespeare.db"
+read_only = true
