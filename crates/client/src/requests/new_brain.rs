@@ -14,6 +14,11 @@ impl<'a> NewBrainRequest<'a> {
         self
     }
 
+    pub fn brain_file(mut self, file: impl ToString) -> Self {
+        self.brain_file.replace(file.to_string());
+        self
+    }
+
     pub async fn send(self) -> Result<responses::Created> {
         let Self {
             client,
