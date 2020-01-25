@@ -1,15 +1,25 @@
 [package]
-name = "config"
+name = "server"
 version = "0.1.0"
 authors = ["museun <museun@outlook.com>"]
 edition = "2018"
 
 [dependencies]
+config = { path = "../config" }
 markov = { path = "../markov" }
+types = { path = "../types" }
 
 hashbrown = { version = "0.6.3", features = ["serde"] }
+rand = "0.7.3"
 serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.45"
 tokio = { version = "0.2.10", default-features = false, features = ["fs"] }
-toml = { version = "0.5.6", features = ["preserve_order"] }
+toml = "0.5.6"
 tracing = "0.1.12"
+warp = { version = "0.2.1", default-features = false }
 
+[dev-dependencies]
+bytes = "0.5.4"
+matches = "0.1.8"
+tempdir = "0.3.7"
+tokio = { version = "0.2.10", default-features = false, features = ["macros"] }

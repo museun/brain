@@ -1,2 +1,2 @@
 [workspace]
-members = ["brain", "client", "config", "markov", "server"]
+members = ["crates/*"]

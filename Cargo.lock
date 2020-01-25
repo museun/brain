@@ -148,7 +148,7 @@ version = "0.1.0"
 dependencies = [
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "server 0.1.0",
+ "types 0.1.0",
 ]
 
 [[package]]
@@ -156,11 +156,9 @@ name = "config"
 version = "0.1.0"
 dependencies = [
  "hashbrown 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "markov 0.1.0",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "tracing 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -873,7 +871,6 @@ version = "0.1.0"
 dependencies = [
  "bytes 0.5.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "config 0.1.0",
- "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "hashbrown 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "markov 0.1.0",
  "matches 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -884,6 +881,7 @@ dependencies = [
  "tokio 0.2.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "types 0.1.0",
  "warp 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -1076,6 +1074,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "typenum"
 version = "1.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "types"
+version = "0.1.0"
+dependencies = [
+ "hashbrown 0.6.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "unicase"

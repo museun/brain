@@ -1,5 +1,4 @@
 use hashbrown::HashMap;
-use markov::Markov;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -10,9 +9,9 @@ pub use error::Error;
 
 type Result<T> = std::result::Result<T, Error>;
 
-pub struct ConfiguredMarkov {
+pub struct ConfiguredMarkov<M> {
     pub config: BrainConfig,
-    pub markov: Markov,
+    pub markov: M,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

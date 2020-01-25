@@ -1,4 +1,5 @@
-use super::models::{self, Error};
+use crate::models::{self, Error};
+use crate::{BrainDb, Topics};
 
 use std::sync::Arc;
 
@@ -48,10 +49,7 @@ pub async fn recover(err: Rejection) -> Result<impl Reply, Rejection> {
     Err(err)
 }
 
-pub async fn filter(
-    topics: Arc<models::Topics>,
-    name: String,
-) -> Result<models::BrainDb, Rejection> {
+pub async fn filter(topics: Arc<Topics>, name: String) -> Result<BrainDb, Rejection> {
     topics
         .brains
         .lock()
@@ -62,9 +60,9 @@ pub async fn filter(
 }
 
 pub async fn expect_unique(
-    topics: Arc<models::Topics>,
+    topics: Arc<Topics>,
     name: String,
-) -> Result<(Arc<models::Topics>, String), Rejection> {
+) -> Result<(Arc<Topics>, String), Rejection> {
     if topics.brains.lock().await.contains_key(&name) {
         return Err(warp::reject::custom(AlreadyExistsReject { name }));
     }

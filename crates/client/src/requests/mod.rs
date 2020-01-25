@@ -1,6 +1,6 @@
 use crate::{Error, Result};
 use futures::prelude::*;
-use server::models::{input, responses};
+use types::{input, responses};
 
 mod generate;
 pub use generate::GenerateRequest;

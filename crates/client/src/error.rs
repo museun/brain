@@ -1,11 +1,9 @@
-use server::models;
-
 #[derive(Debug)]
 pub enum Error {
     NoBrainProvided,
     NoDataProvided,
     NoBrainFileProvided,
-    Server { err: models::Error },
+    Server { err: types::Error },
     Client { err: reqwest::Error },
 }
 

@@ -1,10 +1,15 @@
-use super::{models::Error, *};
+use crate::{models::Error, Brain, Topics, *};
 use hashbrown::HashMap;
 use markov::Markov;
 use tempdir::TempDir;
 use tokio::sync::Mutex;
 use warp::http::StatusCode;
 use warp::test::request;
+
+const LOREM_IPSUM: &str = "Lorem ipsum dolor sit amet,\
+                           consectetur adipiscing elit. \
+                           Donec ornare mi vitae fermentum aliquet. \
+                           Vivamus placerat lacinia ipsum, at suscipit.";
 
 fn make_input() -> models::input::TrainData {
     models::input::TrainData {
@@ -18,7 +23,7 @@ fn make_brain<'a>(
     file: impl Into<PathBuf>,
     read_only: bool,
     state: impl Into<Option<&'static str>>,
-) -> models::Brain {
+) -> Brain {
     let mut brain_file = file.into();
 
     if let Some(dir) = dir.into() {
@@ -32,7 +37,7 @@ fn make_brain<'a>(
         markov.train_text(data)
     }
 
-    models::Brain {
+    Brain {
         config: config::BrainConfig {
             name: name.to_string(),
             brain_file,
@@ -42,10 +47,7 @@ fn make_brain<'a>(
     }
 }
 
-fn make_db(
-    test_dir: &TempDir,
-    state: impl Into<Option<&'static str>> + Copy,
-) -> Arc<models::Topics> {
+fn make_db(test_dir: &TempDir, state: impl Into<Option<&'static str>> + Copy) -> Arc<Topics> {
     let test1 = make_brain(test_dir, "test1", "test1.db", false, state);
     let test2 = make_brain(test_dir, "test2", "test2.db", true, state);
     let test_no_file = make_brain(test_dir, "test_no_file", "test_no_file.db", false, state);
@@ -58,7 +60,7 @@ fn make_db(
     let brain_config_path = test_dir.path().join("brain.toml");
     std::fs::File::create(&brain_config_path).unwrap();
 
-    Arc::new(models::Topics::new(brain_config_path, map))
+    Arc::new(Topics::new(brain_config_path, map))
 }
 
 fn body_as_json<'de, T>(resp: &'de warp::http::Response<bytes::Bytes>) -> T
@@ -73,11 +75,6 @@ where
     let data = resp.body().bytes();
     serde_json::from_slice(data).unwrap()
 }
-
-const LOREM_IPSUM: &str = "Lorem ipsum dolor sit amet,\
-                           consectetur adipiscing elit. \
-                           Donec ornare mi vitae fermentum aliquet. \
-                           Vivamus placerat lacinia ipsum, at suscipit.";
 
 #[tokio::test]
 async fn generate_no_state() {

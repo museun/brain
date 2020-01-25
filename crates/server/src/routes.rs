@@ -1,9 +1,10 @@
-use super::{expect_unique, filter, handlers, json_body, models, recover};
+use crate::{expect_unique, filter, handlers, json_body, recover, Topics};
+
 use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 
 pub fn generate(
-    topics: Arc<models::Topics>,
+    topics: Arc<Topics>,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path!("generate" / String)
         .and(warp::get())
@@ -12,9 +13,7 @@ pub fn generate(
         .and_then(handlers::generate)
 }
 
-pub fn train(
-    topics: Arc<models::Topics>,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn train(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path!("train" / String)
         .and_then(move |name| filter(Arc::clone(&topics), name))
         .and(warp::post())
@@ -22,9 +21,7 @@ pub fn train(
         .and_then(handlers::train)
 }
 
-pub fn new(
-    topics: Arc<models::Topics>,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn new(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path!("new" / String)
         .and_then(move |name| expect_unique(Arc::clone(&topics), name))
         .and(warp::post())
@@ -33,18 +30,14 @@ pub fn new(
         .recover(recover)
 }
 
-pub fn save(
-    topics: Arc<models::Topics>,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn save(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path!("save" / String)
         .and(warp::put())
         .and_then(move |name| filter(Arc::clone(&topics), name))
         .and_then(handlers::save)
 }
 
-pub fn list(
-    topics: Arc<models::Topics>,
-) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn list(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path!("list")
         .and(warp::get())
         .map(move || Arc::clone(&topics))
