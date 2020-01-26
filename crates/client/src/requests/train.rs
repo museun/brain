@@ -41,6 +41,9 @@ impl<'a> TrainRequest<'a> {
             .send()
             .and_then(|ok| ok.json())
             .await
-            .map_err(|err| Error::Client { err })
+            .map_err(|err| {
+                tracing::error!(err = %err, "error sending");
+                Error::Client { err }
+            })
     }
 }

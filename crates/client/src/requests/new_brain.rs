@@ -34,15 +34,27 @@ impl<'a> NewBrainRequest<'a> {
             url,
             brain.ok_or_else(|| Error::NoBrainProvided)?
         );
-        client
+        let resp = client
             .post(&url)
             .json(&input::NewBrain {
-                brain_file: brain_file.ok_or_else(|| Error::NoBrainFileProvided)?,
+                brain_file: dbg!(brain_file).ok_or_else(|| Error::NoBrainFileProvided)?,
                 depth: depth.unwrap_or(5),
             })
             .send()
-            .and_then(|ok| ok.json())
             .await
-            .map_err(|err| Error::Client { err })
+            .map_err(|err| {
+                tracing::error!(err = %err, "error sending");
+                Error::Client { err }
+            })?;
+
+        if resp.status().is_success() {
+            return resp.json().await.map_err(|err| Error::Client { err });
+        }
+
+        let err = resp
+            .json::<types::Error>()
+            .await
+            .map_err(|err| Error::Client { err })?;
+        Err(Error::Server { err})
     }
 }
