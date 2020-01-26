@@ -13,19 +13,19 @@ mod train;
 
 mod config;
 
-#[cfg(test)]
-mod tests;
-
-type Result<T> = std::result::Result<T, Error>;
-
-pub mod models {
+mod models {
     pub use types::*;
 }
 
 mod server;
 
 mod error;
-pub use error::Error;
+use error::Error;
+
+type Result<T> = std::result::Result<T, Error>;
+
+#[cfg(test)]
+mod tests;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

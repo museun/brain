@@ -35,7 +35,7 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn add_brain(&mut self, brain: ConfiguredMarkov<Markov>) {
+    pub fn add_brain(&mut self, brain: ConfiguredMarkov) {
         let ConfiguredMarkov { config, markov } = brain;
         let name = config.name.clone();
         let brain = Arc::new(Brain {

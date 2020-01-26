@@ -1,7 +1,15 @@
 use crate::config::{BrainConfig, Config};
-use futures::prelude::*;
+use crate::stats::Stats;
+use markov::Markov;
+
+use hashbrown::HashMap;
+use indicatif::{ProgressBar, ProgressStyle};
+use tokio::{fs::File, io::BufReader};
+use {futures::prelude::*, tokio::prelude::*};
+
 use std::path::{Path, PathBuf};
-use tokio::prelude::*;
+use std::sync::mpsc::Receiver;
+use std::time::{Duration, Instant};
 
 const PROGRESS_MAX: usize = 100;
 
@@ -25,14 +33,14 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
     // TODO Humanize this
     tracing::debug!("training {} lines", count);
 
-    let (mut stats, samples) = crate::stats::Stats::new(count / PROGRESS_MAX);
+    let (mut stats, samples) = Stats::new(count / PROGRESS_MAX);
     let sync = display_progress_bar(samples);
 
     let markov = train_brain(&name, depth, &input, &mut stats).await?;
     let report = stats.done();
 
     // wait for the progress bar task to end
-    sync.await.unwrap().finish_and_clear();
+    sync.await.finish_and_clear();
     tracing::debug!(
         "total lines: {}, took: {:.2?}, {:.3} lines per second",
         report.count,
@@ -40,7 +48,7 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
         report.lines_per_sec()
     );
 
-    let now = std::time::Instant::now();
+    let now = Instant::now();
     markov::save(&markov, &output)?;
     tracing::debug!("saving took: {:.2?}", now.elapsed());
 
@@ -92,12 +100,10 @@ fn parse_args(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
     Ok(arguments)
 }
 
-fn display_progress_bar(
-    samples: std::sync::mpsc::Receiver<crate::stats::Sample>,
-) -> tokio::task::JoinHandle<indicatif::ProgressBar> {
-    let pb = indicatif::ProgressBar::new(PROGRESS_MAX as _);
+async fn display_progress_bar(samples: Receiver<crate::stats::Sample>) -> ProgressBar {
+    let pb = ProgressBar::new(PROGRESS_MAX as _);
     pb.set_style(
-        indicatif::ProgressStyle::default_bar()
+        ProgressStyle::default_bar()
             .template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {msg} ({eta})")
             .progress_chars("#>-"),
     );
@@ -105,7 +111,7 @@ fn display_progress_bar(
     let bar = pb.clone();
     tokio::task::spawn(async move {
         while !bar.is_finished() {
-            tokio::time::delay_for(std::time::Duration::from_millis(250)).await;
+            tokio::time::delay_for(Duration::from_millis(250)).await;
             bar.tick();
         }
     });
@@ -117,6 +123,8 @@ fn display_progress_bar(
         }
         pb
     })
+    .await
+    .unwrap()
 }
 
 fn print_append_message(
@@ -136,7 +144,7 @@ fn print_append_message(
 
     let toml = toml::to_string_pretty(&Config {
         brains: {
-            let mut map = hashbrown::HashMap::new();
+            let mut map = HashMap::new();
             map.insert(name, config);
             map
         },
@@ -155,13 +163,13 @@ async fn train_brain(
     name: &str,
     depth: impl Into<Option<usize>>,
     input: impl AsRef<Path>,
-    stats: &mut crate::stats::Stats,
+    stats: &mut Stats,
 ) -> anyhow::Result<markov::Markov> {
-    let file = tokio::fs::File::open(input).await?;
-    let lines = tokio::io::BufReader::new(file).lines();
+    let file = File::open(input).await?;
+    let lines = BufReader::new(file).lines();
     futures::pin_mut!(lines);
 
-    let mut markov = markov::Markov::new(depth.into().unwrap_or(5), name);
+    let mut markov = Markov::new(depth.into().unwrap_or(5), name);
     while let Some(Ok(line)) = lines.next().await {
         stats.tick();
         markov.train_text(&line);
@@ -171,14 +179,13 @@ async fn train_brain(
 }
 
 async fn file_size(file: impl AsRef<Path>) -> anyhow::Result<f64> {
-    let size = tokio::fs::File::open(file).await?.metadata().await?.len();
+    let size = File::open(file).await?.metadata().await?.len();
     let kib = ((size / 1024) as f64) / 1024.0;
     Ok(kib)
 }
 
 async fn line_count(input: impl AsRef<Path>) -> anyhow::Result<usize> {
-    use {futures::prelude::*, tokio::prelude::*};
-    let count = tokio::io::BufReader::new(tokio::fs::File::open(input).await?)
+    let count = BufReader::new(File::open(input).await?)
         .lines()
         .fold(0_usize, |a, _| async move { a + 1 })
         .await;

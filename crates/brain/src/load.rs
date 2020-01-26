@@ -1,12 +1,11 @@
 use crate::config::{BrainConfig, Config, ConfiguredMarkov};
 use futures::prelude::*;
-use markov::Markov;
 use std::path::PathBuf;
 
 pub struct Arguments {
     pub port: u16,
     pub config_file: PathBuf,
-    pub brains: Vec<ConfiguredMarkov<Markov>>,
+    pub brains: Vec<ConfiguredMarkov>,
 }
 
 pub async fn load(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
@@ -38,7 +37,7 @@ pub async fn load(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
     })
 }
 
-async fn load_brain(config: BrainConfig) -> anyhow::Result<ConfiguredMarkov<Markov>> {
+async fn load_brain(config: BrainConfig) -> anyhow::Result<ConfiguredMarkov> {
     let (tx, rx) = tokio::sync::oneshot::channel();
 
     tokio::task::spawn_blocking(|| {

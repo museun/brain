@@ -166,13 +166,12 @@ fn weighted_selection<R: ?Sized + Rng>(rng: &mut R, links: &[Link]) -> Link {
     links
         .iter()
         .cycle()
-        .skip(rng.gen::<usize>() % total_count)
+        .skip(rng.gen_range(0, total_count))
         .scan(total_count, |remaining, link| {
             *remaining = remaining.saturating_sub(link.count);
             Some((*remaining, link))
         })
-        .filter(|(remaining, _)| *remaining == 0)
-        .map(|(_, link)| link)
+        .filter_map(|(remaining, link)| if remaining == 0 { None } else { Some(link) })
         .next()
         .expect("get next weighted")
         .clone()

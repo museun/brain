@@ -5,9 +5,9 @@ use std::path::{Path, PathBuf};
 
 const SAMPLE_CONFIG: &str = include_str!("../sample_config.toml");
 
-pub struct ConfiguredMarkov<M> {
+pub struct ConfiguredMarkov {
     pub config: BrainConfig,
-    pub markov: M,
+    pub markov: markov::Markov,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -30,12 +30,13 @@ impl Config {
 
     pub async fn load(path: impl AsRef<Path>) -> Result<Self> {
         let config = tokio::fs::read_to_string(path).await?;
-        toml::from_str(&config).map_err(Into::into)
+        let res = toml::from_str(&config)?;
+        Ok(res)
     }
 
+    #[allow(dead_code)]
     pub async fn save(&self, path: impl AsRef<Path>) -> Result<()> {
-        tokio::fs::write(path, toml::to_string_pretty(&self)?.as_bytes())
-            .await
-            .map_err(Into::into)
+        tokio::fs::write(path, toml::to_string_pretty(&self)?.as_bytes()).await?;
+        Ok(())
     }
 }
