@@ -1,6 +1,9 @@
 use crate::models::{self, Error};
+use crate::{
+    config::{BrainConfig, Config},
+    server::{Brain, BrainDb, Topics},
+};
 use crate::{error, okay, rotate};
-use crate::{Brain, BrainDb, Topics};
 
 use std::convert::Infallible;
 use std::sync::Arc;
@@ -46,7 +49,7 @@ pub async fn new(
     use tokio::io::AsyncWriteExt as _;
     let models::input::NewBrain { depth, brain_file } = input;
     let brain = Brain {
-        config: config::BrainConfig {
+        config: BrainConfig {
             name: name.clone(),
             brain_file: brain_file.clone().into(),
             read_only: false,
@@ -57,7 +60,7 @@ pub async fn new(
     let brain = std::sync::Arc::new(brain);
     save(Arc::clone(&brain)).await?;
 
-    let mut config = config::Config::default();
+    let mut config = Config::default();
     config.brains.insert(name.clone(), brain.config.clone());
 
     let data = format!(

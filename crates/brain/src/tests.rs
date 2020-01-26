@@ -1,6 +1,12 @@
-use crate::{models::Error, Brain, Topics, *};
+use crate::{
+    models::Error,
+    server::{Brain, Topics},
+    *,
+};
 use hashbrown::HashMap;
 use markov::Markov;
+use std::path::PathBuf;
+use std::sync::Arc;
 use tempdir::TempDir;
 use tokio::sync::Mutex;
 use warp::http::StatusCode;

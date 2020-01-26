@@ -1,3 +1,4 @@
+use crate::config::{BrainConfig, Config};
 use futures::prelude::*;
 use std::path::{Path, PathBuf};
 use tokio::prelude::*;
@@ -127,13 +128,13 @@ fn print_append_message(
     let name = name.to_string();
     let brain_file = brain_file.into();
 
-    let config = config::BrainConfig {
+    let config = BrainConfig {
         name: name.clone(),
         brain_file,
         read_only: true,
     };
 
-    let toml = toml::to_string_pretty(&config::Config {
+    let toml = toml::to_string_pretty(&Config {
         brains: {
             let mut map = hashbrown::HashMap::new();
             map.insert(name, config);

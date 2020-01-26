@@ -1,4 +1,3 @@
-use config::BrainConfig;
 use hashbrown::HashMap;
 use markov::Markov;
 use std::path::PathBuf;
@@ -6,18 +5,8 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use warp::Filter;
 
-mod util;
-use util::*;
-
-mod handlers;
-mod routes;
-
-#[cfg(test)]
-mod tests;
-
-pub mod models {
-    pub use types::*;
-}
+use crate::config::{BrainConfig, ConfiguredMarkov};
+use crate::routes;
 
 pub type BrainDb = Arc<Brain>;
 
@@ -46,23 +35,14 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn add_brain(&mut self, brain: config::ConfiguredMarkov<Markov>) {
-        let config::ConfiguredMarkov { config, markov } = brain;
+    pub fn add_brain(&mut self, brain: ConfiguredMarkov<Markov>) {
+        let ConfiguredMarkov { config, markov } = brain;
         let name = config.name.clone();
         let brain = Arc::new(Brain {
             config,
             markov: Mutex::new(markov),
         });
         self.brains.insert(name, brain);
-    }
-
-    pub fn with(mut self, brain: config::ConfiguredMarkov<Markov>) -> Self {
-        self.add_brain(brain);
-        self
     }
 
     pub async fn run(self, config: impl Into<PathBuf>, port: u16) {

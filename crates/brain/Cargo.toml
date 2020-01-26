@@ -5,17 +5,25 @@ edition = "2018"
 authors = ["museun <museun@outlook.com>"]
 
 [dependencies]
-config = { path = "../config" }
 markov = { path = "../markov" }
-server = { path = "../server" }
+types = { path = "../types" }
 
 anyhow = "1.0.26"
 futures = { version = "0.3.1", default-features = false }
 hashbrown = { version = "0.6.3", features = ["serde"] }
 indicatif = "0.13.0"
 pico-args = "0.3.1"
+rand = "0.7.3"
 serde = { version = "1.0.104", features = ["derive"] }
+serde_json = "1.0.45"
 tokio = { version = "0.2.10", default-features = false, features = ["macros", "fs", "rt-threaded", "io-util", "stream"] }
 toml = { version = "0.5.6", features = ["preserve_order"] }
 tracing = "0.1.12"
 tracing-subscriber = { version = "0.2.0-alpha.4", default-features = false, features = ["smallvec", "fmt", "ansi"] }
+warp = { version = "0.2.1", default-features = false }
+
+[dev-dependencies]
+bytes = "0.5.4"
+matches = "0.1.8"
+tempdir = "0.3.7"
+tokio = { version = "0.2.10", default-features = false, features = ["macros"] }

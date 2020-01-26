@@ -1,4 +1,5 @@
-use crate::{expect_unique, filter, handlers, json_body, recover, Topics};
+use crate::server::Topics;
+use crate::{expect_unique, filter, handlers, json_body, recover};
 
 use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};

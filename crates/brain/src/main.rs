@@ -1,9 +1,31 @@
+mod util;
+use util::*;
+
+mod handlers;
+mod routes;
+
 mod args;
 mod stats;
 mod usage;
 
 mod load;
 mod train;
+
+mod config;
+
+#[cfg(test)]
+mod tests;
+
+type Result<T> = std::result::Result<T, Error>;
+
+pub mod models {
+    pub use types::*;
+}
+
+mod server;
+
+mod error;
+pub use error::Error;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

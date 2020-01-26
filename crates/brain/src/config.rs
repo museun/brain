@@ -1,13 +1,9 @@
+use crate::Result;
 use hashbrown::HashMap;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 const SAMPLE_CONFIG: &str = include_str!("../sample_config.toml");
-
-mod error;
-pub use error::Error;
-
-type Result<T> = std::result::Result<T, Error>;
 
 pub struct ConfiguredMarkov<M> {
     pub config: BrainConfig,

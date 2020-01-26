@@ -1,5 +1,5 @@
 use crate::models::{self, Error};
-use crate::{BrainDb, Topics};
+use crate::server::{BrainDb, Topics};
 
 use std::sync::Arc;
 

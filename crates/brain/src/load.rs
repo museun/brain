@@ -1,3 +1,4 @@
+use crate::config::{BrainConfig, Config, ConfiguredMarkov};
 use futures::prelude::*;
 use markov::Markov;
 use std::path::PathBuf;
@@ -5,7 +6,7 @@ use std::path::PathBuf;
 pub struct Arguments {
     pub port: u16,
     pub config_file: PathBuf,
-    pub brains: Vec<config::ConfiguredMarkov<Markov>>,
+    pub brains: Vec<ConfiguredMarkov<Markov>>,
 }
 
 pub async fn load(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
@@ -22,7 +23,7 @@ pub async fn load(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
         .open(&config_file)
         .await?;
 
-    let config = config::Config::load(&config_file).await.unwrap_or_default();
+    let config = Config::load(&config_file).await.unwrap_or_default();
 
     let set = futures::stream::FuturesUnordered::new();
     for (name, mut config) in config.brains {
@@ -37,9 +38,7 @@ pub async fn load(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
     })
 }
 
-async fn load_brain(
-    config: config::BrainConfig,
-) -> anyhow::Result<config::ConfiguredMarkov<Markov>> {
+async fn load_brain(config: BrainConfig) -> anyhow::Result<ConfiguredMarkov<Markov>> {
     let (tx, rx) = tokio::sync::oneshot::channel();
 
     tokio::task::spawn_blocking(|| {
@@ -56,7 +55,7 @@ async fn load_brain(
             })
             .map(|markov| {
                 tracing::debug!("loading took: {:.2?}", now.elapsed());
-                config::ConfiguredMarkov { markov, config }
+                ConfiguredMarkov { markov, config }
             });
         let _ = tx.send(res);
     });
