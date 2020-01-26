@@ -157,11 +157,11 @@ impl Markov {
             }
         }
 
-        weighted_selection(rng, &pooled_links).token
+        weighted_selection(rng, &pooled_links).token.clone()
     }
 }
 
-fn weighted_selection<R: ?Sized + Rng>(rng: &mut R, links: &[Link]) -> Link {
+fn weighted_selection<'a, R: ?Sized + Rng>(rng: &mut R, links: &'a [Link]) -> &'a Link {
     let total_count = links.iter().map(|l| l.count).sum::<usize>();
     links
         .iter()
@@ -174,5 +174,4 @@ fn weighted_selection<R: ?Sized + Rng>(rng: &mut R, links: &[Link]) -> Link {
         .filter_map(|(remaining, link)| if remaining == 0 { None } else { Some(link) })
         .next()
         .expect("get next weighted")
-        .clone()
 }
