@@ -6,29 +6,17 @@ use std::path::Path;
 mod error;
 pub use error::Error;
 
-mod args;
-mod link;
+mod markov;
+pub use markov::Markov;
+
 mod linkset;
-mod token;
 
 pub mod types {
     #[doc(inline)]
-    pub use super::args::{Max, Min};
-
-    #[doc(inline)]
-    pub use super::link::Link;
-
-    #[doc(inline)]
-    pub use super::linkset::LinkSet;
-
-    #[doc(inline)]
-    pub use super::token::Token;
+    pub use super::linkset::{Link, LinkSet, Token};
 }
 
 use types::*;
-
-mod markov;
-pub use self::markov::Markov;
 
 pub fn load(input: impl AsRef<Path>) -> Result<Markov, Error> {
     let input = input.as_ref();

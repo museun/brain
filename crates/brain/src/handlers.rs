@@ -15,8 +15,8 @@ pub async fn generate(db: BrainDb, opts: models::input::GenerateOptions) -> Resu
     use rand::prelude::*;
     let data = db.markov.lock().await.generate(
         &mut thread_rng(),
-        opts.min.map(markov::types::Min).unwrap_or_default(),
-        opts.max.map(markov::types::Max).unwrap_or_default(),
+        opts.min.unwrap_or(5),
+        opts.max.unwrap_or(30),
         opts.context.as_ref().map(|s| s.as_str()),
     );
 

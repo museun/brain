@@ -18,11 +18,12 @@ impl Markov {
         }
     }
 
+    // TODO make this trait-based so the desired behavior can be specified
     pub fn generate<R: ?Sized + Rng>(
         &self,
         rng: &mut R,
-        min: Min,
-        max: Max,
+        min: usize,
+        max: usize,
         query: Option<&str>,
     ) -> Option<String> {
         #[inline(always)]
@@ -30,7 +31,6 @@ impl Markov {
             &words[words.len().saturating_sub(depth)..]
         };
 
-        let (Min(min), Max(max)) = (min, max);
         let chances = [rng.gen_range(0.10, 0.40), rng.gen_range(0.10, 0.40)];
         let mut desired = rng.gen_range(1, 3);
         let mut last = false;
@@ -72,20 +72,21 @@ impl Markov {
                 }
             }
 
-            if words.len() > min {
+            if words.len() >= min {
                 break;
             }
         }
 
         words
             .iter()
-            .map(|s| std::str::from_utf8(&s).unwrap())
-            .fold(String::new(), |mut a, c| {
-                if !a.is_empty() {
-                    a.push_str(" ")
+            .map(|s| s.as_ref())
+            .flat_map(std::str::from_utf8)
+            .fold(String::new(), |mut acc, str| {
+                if !acc.is_empty() {
+                    acc.push_str(" ")
                 }
-                a.push_str(c);
-                a
+                acc.push_str(str);
+                acc
             })
             .into()
     }
