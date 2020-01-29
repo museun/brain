@@ -9,7 +9,8 @@ pub struct Markov {
 }
 
 impl Markov {
-    pub fn new(depth: usize, name: impl ToString) -> Self {
+    #[tracing::instrument(level = "trace")]
+    pub fn new(depth: usize, name: impl ToString + std::fmt::Debug) -> Self {
         Markov {
             depth,
             name: name.to_string(),
@@ -19,6 +20,7 @@ impl Markov {
     }
 
     // TODO make this trait-based so the desired behavior can be specified
+    #[tracing::instrument(level = "debug", skip(rng, self))]
     pub fn generate<R: ?Sized + Rng>(
         &self,
         rng: &mut R,
@@ -38,6 +40,7 @@ impl Markov {
         tracing::trace!(length.min = %min, length.max = %max, query = ?query);
 
         let mut words: Vec<Vec<u8>> = vec![];
+        let mut count = 0;
         loop {
             match query {
                 Some(query) if rng.gen_bool(chances[0]) && desired > 0 && !last => {
@@ -53,6 +56,7 @@ impl Markov {
             }
 
             if words.len() >= max {
+                tracing::trace!(words = %words.len(), %max, "exceeding max");
                 break;
             }
 
@@ -68,13 +72,21 @@ impl Markov {
                 words.push(word.clone());
                 last = false;
                 if words.len() >= max {
+                    tracing::trace!(words = %words.len(), %max, "exceeding max, inner");
                     break;
                 }
             }
 
             if words.len() >= min {
+                tracing::trace!(words = %words.len(), %min, "exceeding min");
                 break;
             }
+
+            if count == words.len() {
+                tracing::trace!(words = %words.len(), %count, "no progress");
+                break;
+            }
+            count = words.len();
         }
 
         words
@@ -91,6 +103,7 @@ impl Markov {
             .into()
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     pub fn train_text(&mut self, text: &str) {
         for set in text
             .split_terminator(|c| ".?!\n".contains(c))
@@ -135,7 +148,8 @@ impl Markov {
     }
 
     fn next_word<R: ?Sized + Rng>(&self, rng: &mut R, context: &[Vec<u8>]) -> Token {
-        let mut link_sets = (1..=std::cmp::min(self.depth, context.len()))
+        let upper = std::cmp::min(self.depth, context.len());
+        let mut link_sets = (1..=upper)
             .filter_map(|width| {
                 self.chain
                     .get(&context[context.len() - width..])
@@ -145,12 +159,16 @@ impl Markov {
 
         let mut pooled_links = match link_sets.peek() {
             Some((_, link_set)) => Vec::<Link>::with_capacity(link_set.len()),
-            _ => return Token::End,
+            _ => {
+                tracing::trace!("no next link");
+                return Token::End;
+            }
         };
 
         for (width, link_set) in link_sets {
             for mut link in link_set.iter().cloned() {
                 link.count *= width;
+
                 match pooled_links.iter_mut().find(|l| l.token == link.token) {
                     Some(existing) => existing.merge(&link),
                     None => pooled_links.push(link),
@@ -172,7 +190,7 @@ fn weighted_selection<'a, R: ?Sized + Rng>(rng: &mut R, links: &'a [Link]) -> &'
             *remaining = remaining.saturating_sub(link.count);
             Some((*remaining, link))
         })
-        .filter_map(|(remaining, link)| if remaining == 0 { None } else { Some(link) })
+        .filter_map(|(remaining, link)| if remaining == 0 { Some(link) } else { None })
         .next()
         .expect("get next weighted")
 }

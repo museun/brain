@@ -84,8 +84,20 @@ where
     serde_json::from_slice(data).unwrap()
 }
 
+fn init_logger() {
+    if cfg!(feature = "verbose_test") {
+        let _ = tracing_subscriber::fmt::Subscriber::builder()
+            .without_time()
+            .with_max_level(tracing::Level::TRACE)
+            .compact()
+            .try_init();
+    }
+}
+
 #[tokio::test]
 async fn generate_no_state() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, None));
     let resp = request()
@@ -98,6 +110,8 @@ async fn generate_no_state() {
 
 #[tokio::test]
 async fn generate_context_no_state() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, None));
     let resp = request()
@@ -110,6 +124,8 @@ async fn generate_context_no_state() {
 
 #[tokio::test]
 async fn generate_readonly_no_state() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, None));
     let resp = request()
@@ -122,6 +138,8 @@ async fn generate_readonly_no_state() {
 
 #[tokio::test]
 async fn generate() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, LOREM_IPSUM));
     let resp = request()
@@ -134,6 +152,8 @@ async fn generate() {
 
 #[tokio::test]
 async fn generate_context() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, LOREM_IPSUM));
     let resp = request()
@@ -146,6 +166,8 @@ async fn generate_context() {
 
 #[tokio::test]
 async fn generate_readonly() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, LOREM_IPSUM));
     let resp = request()
@@ -158,6 +180,8 @@ async fn generate_readonly() {
 
 #[tokio::test]
 async fn generate_unknown() {
+    init_logger();
+
     let dir = TempDir::new("brain_tests").unwrap();
     let api = routes::generate(make_db(&dir, LOREM_IPSUM));
     let resp = request()

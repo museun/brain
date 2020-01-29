@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 // TODO this isn't a real error
 #[derive(Debug, Serialize, Deserialize)]

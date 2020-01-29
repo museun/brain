@@ -9,6 +9,7 @@ use warp::Reply;
 
 type Result<R> = std::result::Result<R, Infallible>;
 
+#[tracing::instrument(level = "trace")]
 pub async fn generate(db: BrainDb, opts: models::input::GenerateOptions) -> Result<impl Reply> {
     use rand::prelude::*;
     let data = db.markov.lock().await.generate(
@@ -19,11 +20,17 @@ pub async fn generate(db: BrainDb, opts: models::input::GenerateOptions) -> Resu
     );
 
     match data {
-        Some(data) => okay(models::responses::Generated {
-            name: db.config.name.to_string(),
-            data: data.to_string(),
-        }),
-        None => error(Error::NotEnoughState),
+        Some(data) => {
+            tracing::trace!(%data, "generated");
+            okay(models::responses::Generated {
+                name: db.config.name.to_string(),
+                data: data.to_string(),
+            })
+        }
+        None => {
+            tracing::warn!("not enough state");
+            error(Error::NotEnoughState)
+        }
     }
 }
 

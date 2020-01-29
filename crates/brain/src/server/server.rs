@@ -15,6 +15,15 @@ pub struct Brain {
     pub markov: Mutex<Markov>,
 }
 
+impl std::fmt::Debug for Brain {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Brain")
+            .field("name", &self.config.name)
+            .field("read_only", &self.config.read_only)
+            .finish()
+    }
+}
+
 pub struct Topics {
     pub brains: Mutex<HashMap<String, BrainDb>>,
     pub config_path: PathBuf,

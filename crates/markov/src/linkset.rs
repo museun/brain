@@ -71,8 +71,19 @@ impl Ord for Link {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, PartialOrd, Eq, Serialize, Deserialize)]
 pub enum Token {
     Word(Vec<u8>),
     End,
+}
+
+impl std::fmt::Debug for Token {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut this = f.debug_struct("Token");
+        match self {
+            Token::Word(word) => this.field("kind", &"Word").field("len", &word.len()),
+            Token::End => this.field("kind", &"End"),
+        }
+        .finish()
+    }
 }

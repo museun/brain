@@ -55,6 +55,6 @@ impl<'a> NewBrainRequest<'a> {
             .json::<types::Error>()
             .await
             .map_err(|err| Error::Client { err })?;
-        Err(Error::Server { err})
+        Err(Error::Server { err })
     }
 }
