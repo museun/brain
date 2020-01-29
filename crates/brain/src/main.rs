@@ -1,31 +1,17 @@
-mod util;
-use util::*;
-
-mod handlers;
-mod routes;
-
 mod args;
+mod config;
+mod load;
 mod stats;
+mod train;
 mod usage;
 
-mod load;
-mod train;
-
-mod config;
-
-mod models {
-    pub use types::*;
-}
-
 mod server;
+pub use server::Server;
 
 mod error;
 use error::Error;
 
 type Result<T> = std::result::Result<T, Error>;
-
-#[cfg(test)]
-mod tests;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -52,7 +38,7 @@ async fn main() -> anyhow::Result<()> {
         },
     };
 
-    let mut server = server::Server::default();
+    let mut server = Server::default();
     for brain in brains {
         server.add_brain(brain)
     }

@@ -1,8 +1,10 @@
-use crate::{
-    models::Error,
+use super::{
+    models::{self, Error},
+    routes,
     server::{Brain, Topics},
-    *,
 };
+use crate::config;
+
 use hashbrown::HashMap;
 use markov::Markov;
 use std::path::PathBuf;

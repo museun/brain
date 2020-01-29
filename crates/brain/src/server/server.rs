@@ -5,8 +5,8 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 use warp::Filter;
 
+use super::routes;
 use crate::config::{BrainConfig, ConfiguredMarkov};
-use crate::routes;
 
 pub type BrainDb = Arc<Brain>;
 
