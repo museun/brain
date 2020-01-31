@@ -9,7 +9,6 @@ pub struct Markov {
 }
 
 impl Markov {
-    #[tracing::instrument(level = "trace")]
     pub fn new(depth: usize, name: impl ToString + std::fmt::Debug) -> Self {
         Markov {
             depth,
@@ -20,7 +19,6 @@ impl Markov {
     }
 
     // TODO make this trait-based so the desired behavior can be specified
-    #[tracing::instrument(level = "debug", skip(rng, self))]
     pub fn generate<R: ?Sized + Rng>(
         &self,
         rng: &mut R,
@@ -37,7 +35,7 @@ impl Markov {
         let mut desired = rng.gen_range(1, 3);
         let mut last = false;
 
-        tracing::trace!(length.min = %min, length.max = %max, query = ?query);
+        log::trace!("min: {}, max: {}, query: {:?}", min, max, query);
 
         let mut words: Vec<Vec<u8>> = vec![];
         let mut count = 0;
@@ -56,7 +54,7 @@ impl Markov {
             }
 
             if words.len() >= max {
-                tracing::trace!(words = %words.len(), %max, "exceeding max");
+                log::trace!("exceeding max, words: {}, max: {}", words.len(), max);
                 break;
             }
 
@@ -72,18 +70,18 @@ impl Markov {
                 words.push(word.clone());
                 last = false;
                 if words.len() >= max {
-                    tracing::trace!(words = %words.len(), %max, "exceeding max, inner");
+                    log::trace!("exceeding max, inner: words: {}, max: {}", words.len(), max);
                     break;
                 }
             }
 
             if words.len() >= min {
-                tracing::trace!(words = %words.len(), %min, "exceeding min");
+                log::trace!("exceeding min, words: {}, min: {}", words.len(), min);
                 break;
             }
 
             if count == words.len() {
-                tracing::trace!(words = %words.len(), %count, "no progress");
+                log::trace!("no progress, words: {}, count: {}", words.len(), count);
                 break;
             }
             count = words.len();
@@ -103,7 +101,6 @@ impl Markov {
             .into()
     }
 
-    #[tracing::instrument(level = "trace", skip(self))]
     pub fn train_text(&mut self, text: &str) {
         for set in text
             .split_terminator(|c| ".?!\n".contains(c))
@@ -160,7 +157,7 @@ impl Markov {
         let mut pooled_links = match link_sets.peek() {
             Some((_, link_set)) => Vec::<Link>::with_capacity(link_set.len()),
             _ => {
-                tracing::trace!("no next link");
+                log::trace!("no next link");
                 return Token::End;
             }
         };

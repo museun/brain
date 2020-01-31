@@ -15,10 +15,18 @@ type Result<T> = std::result::Result<T, Error>;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt::Subscriber::builder()
-        .without_time()
-        .with_max_level(tracing::Level::TRACE)
-        .init();
+    flexi_logger::Logger::with_env_or_str("brain=trace,markov=trace")
+        .format(|w, _, record| {
+            let level = record.level();
+            write!(
+                w,
+                "{} {}",
+                flexi_logger::style(level, level),
+                flexi_logger::style(level, record.args())
+            )
+        })
+        .start()
+        .unwrap();
 
     let load::Arguments {
         port,
@@ -29,9 +37,9 @@ async fn main() -> anyhow::Result<()> {
         args::Command::Load(args) => match load::load(args).await {
             Ok(args) => args,
             Err(err) => {
-                tracing::error!("cannot load configuration file at 'brain.toml': {}", err);
-                tracing::error!("verify the file exists and well-formed.");
-                tracing::error!("here's a sample config:");
+                log::error!("cannot load configuration file at 'brain.toml': {}", err);
+                log::error!("verify the file exists and well-formed.");
+                log::error!("here's a sample config:");
                 config::Config::print_default();
                 std::process::exit(1);
             }

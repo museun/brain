@@ -28,10 +28,10 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
         name,
     } = parse_args(args)?;
 
-    tracing::debug!("counting lines");
+    log::debug!("counting lines");
     let count = line_count(&input).await?;
     // TODO Humanize this
-    tracing::debug!("training {} lines", count);
+    log::info!("training {} lines", count);
 
     let (mut stats, samples) = Stats::new(count / PROGRESS_MAX);
     let sync = display_progress_bar(samples);
@@ -40,8 +40,8 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
     let report = stats.done();
 
     // wait for the progress bar task to end
-    sync.await.finish_and_clear();
-    tracing::debug!(
+    sync.await.unwrap().finish_and_clear();
+    log::info!(
         "total lines: {}, took: {:.2?}, {:.3} lines per second",
         report.count,
         report.duration,
@@ -50,12 +50,15 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
 
     let now = Instant::now();
     markov::save(&markov, &output)?;
-    tracing::debug!("saving took: {:.2?}", now.elapsed());
+    log::debug!("saving took: {:.2?}", now.elapsed());
 
-    let size = file_size(&output).await?;
-    tracing::info!("{} file size: {:.2} KiB", output.display(), size);
+    let size = file_size_as_kib(&output).await?;
+    log::info!("{} file size: {:.2} KiB", output.display(), size);
 
     print_append_message(&markov.name, output, depth, input);
+
+    // fast drop
+    std::mem::forget(markov);
 
     Ok(())
 }
@@ -100,7 +103,9 @@ fn parse_args(mut args: pico_args::Arguments) -> anyhow::Result<Arguments> {
     Ok(arguments)
 }
 
-async fn display_progress_bar(samples: Receiver<crate::stats::Sample>) -> ProgressBar {
+fn display_progress_bar(
+    samples: Receiver<crate::stats::Sample>,
+) -> tokio::task::JoinHandle<ProgressBar> {
     let pb = ProgressBar::new(PROGRESS_MAX as _);
     pb.set_style(
         ProgressStyle::default_bar()
@@ -123,8 +128,6 @@ async fn display_progress_bar(samples: Receiver<crate::stats::Sample>) -> Progre
         }
         pb
     })
-    .await
-    .unwrap()
 }
 
 fn print_append_message(
@@ -151,12 +154,12 @@ fn print_append_message(
     })
     .unwrap();
 
-    tracing::info!("add this to brain.toml");
+    log::info!("add this to brain.toml");
     println!();
     println!("# generated from {}", input.as_ref().display());
     println!("# depth: {}", depth.unwrap_or(5));
     println!("{}", toml);
-    tracing::info!("end of config");
+    log::info!("end of config");
 }
 
 async fn train_brain(
@@ -165,23 +168,18 @@ async fn train_brain(
     input: impl AsRef<Path>,
     stats: &mut Stats,
 ) -> anyhow::Result<markov::Markov> {
-    let file = File::open(input).await?;
-    let lines = BufReader::new(file).lines();
-    futures::pin_mut!(lines);
-
+    let mut lines = BufReader::new(File::open(input).await?).lines();
     let mut markov = Markov::new(depth.into().unwrap_or(5), name);
     while let Some(Ok(line)) = lines.next().await {
         stats.tick();
         markov.train_text(&line);
     }
-
     Ok(markov)
 }
 
-async fn file_size(file: impl AsRef<Path>) -> anyhow::Result<f64> {
+async fn file_size_as_kib(file: impl AsRef<Path>) -> anyhow::Result<f64> {
     let size = File::open(file).await?.metadata().await?.len();
-    let kib = ((size / 1024) as f64) / 1024.0;
-    Ok(kib)
+    Ok(size as f64 / 1024.0)
 }
 
 async fn line_count(input: impl AsRef<Path>) -> anyhow::Result<usize> {

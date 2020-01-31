@@ -56,7 +56,7 @@ impl Stats {
         {
             let duration = self.start.elapsed();
             if self.points.send(Sample { duration, count }).is_err() {
-                tracing::warn!("sampling disabled");
+                log::warn!("sampling disabled");
                 self.sampling.store(false, Ordering::SeqCst)
             }
         }

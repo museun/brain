@@ -20,20 +20,20 @@ use types::*;
 
 pub fn load(input: impl AsRef<Path>) -> Result<Markov, Error> {
     let input = input.as_ref();
-    tracing::debug!("loading from file: '{}'", input.display());
+    log::debug!("loading from file: '{}'", input.display());
     let reader = std::fs::File::open(input)?;
     let reader = snap::Reader::new(reader);
     let markov: Markov = bincode::deserialize_from(reader).map_err(Error::Deserialize)?;
-    tracing::trace!("done deserializing data, got: {}", markov.name);
+    log::trace!("done deserializing data, got: {}", markov.name);
     Ok(markov)
 }
 
 pub fn save(markov: &Markov, output: impl AsRef<Path>) -> Result<(), Error> {
     let output = output.as_ref();
-    tracing::debug!("saving '{}' to file: {}", markov.name, output.display());
+    log::debug!("saving '{}' to file: {}", markov.name, output.display());
     let writer = std::fs::File::create(output)?;
     let writer = snap::Writer::new(writer);
     bincode::serialize_into(writer, &markov).map_err(Error::Serialize)?;
-    tracing::trace!("done serializing data");
+    log::trace!("done serializing data");
     Ok(())
 }

@@ -38,6 +38,12 @@ impl Topics {
     }
 }
 
+impl std::fmt::Debug for Topics {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Topics").finish()
+    }
+}
+
 #[derive(Default)]
 pub struct Server {
     brains: HashMap<String, BrainDb>,
@@ -66,12 +72,12 @@ impl Server {
         let addr = addr
             .parse::<std::net::SocketAddr>()
             .map_err(|err| {
-                tracing::error!("cannot parse: '{}': {}", addr, err);
+                log::error!("cannot parse: '{}': {}", addr, err);
                 err
             })
             .unwrap();
 
-        tracing::info!("listening on: {}", addr);
+        log::info!("listening on: {}", addr);
         warp::serve(routes).run(addr).await;
     }
 }

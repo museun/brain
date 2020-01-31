@@ -1,7 +1,7 @@
 /target
-**/*.rs.bk
 *.db
 *.log
 *.txt
 *.sz
+*.bak
 brain.toml

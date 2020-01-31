@@ -44,7 +44,7 @@ async fn load_brain(config: BrainConfig) -> anyhow::Result<ConfiguredMarkov> {
         let now = std::time::Instant::now();
         let res = markov::load(&config.brain_file)
             .map_err(|err| {
-                tracing::error!(
+                log::error!(
                     "cannot load brain file '{}' for '{}': {}",
                     config.brain_file.display(),
                     &config.name,
@@ -53,7 +53,7 @@ async fn load_brain(config: BrainConfig) -> anyhow::Result<ConfiguredMarkov> {
                 err
             })
             .map(|markov| {
-                tracing::debug!("loading took: {:.2?}", now.elapsed());
+                log::debug!("loading took: {:.2?}", now.elapsed());
                 ConfiguredMarkov { markov, config }
             });
         let _ = tx.send(res);
