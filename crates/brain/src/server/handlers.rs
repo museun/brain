@@ -3,11 +3,10 @@ use super::server::{Brain, BrainDb, Topics};
 use super::{error, okay, rotate};
 use crate::config::{BrainConfig, Config};
 
-use std::convert::Infallible;
 use std::sync::Arc;
 use warp::Reply;
 
-type Result<R> = std::result::Result<R, Infallible>;
+type Result<R> = std::result::Result<R, warp::Rejection>;
 
 #[tracing::instrument(level = "trace")]
 pub async fn generate(db: BrainDb, opts: models::input::GenerateOptions) -> Result<impl Reply> {

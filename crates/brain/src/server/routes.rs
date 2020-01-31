@@ -12,6 +12,7 @@ pub fn generate(
         .and_then(move |name| filter(Arc::clone(&topics), name))
         .and(warp::query())
         .and_then(handlers::generate)
+        .recover(recover)
 }
 
 pub fn train(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
@@ -20,6 +21,7 @@ pub fn train(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = R
         .and(warp::post())
         .and(json_body())
         .and_then(handlers::train)
+        .recover(recover)
 }
 
 pub fn new(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
@@ -36,6 +38,7 @@ pub fn save(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Re
         .and(warp::put())
         .and_then(move |name| filter(Arc::clone(&topics), name))
         .and_then(handlers::save)
+        .recover(recover)
 }
 
 pub fn list(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
@@ -43,4 +46,5 @@ pub fn list(topics: Arc<Topics>) -> impl Filter<Extract = impl Reply, Error = Re
         .and(warp::get())
         .map(move || Arc::clone(&topics))
         .and_then(handlers::list)
+        .recover(recover)
 }

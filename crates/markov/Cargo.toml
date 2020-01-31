@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 bincode = "1.2.1"
-hashbrown = { version = "0.6.3", features = ["serde"] }
+hashbrown = { version = "0.7.0", features = ["serde"] }
 rand = "0.7.3"
 serde = { version = "1.0.104", features = ["derive"] }
 snap = "0.2.5"

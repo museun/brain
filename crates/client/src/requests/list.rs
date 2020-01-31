@@ -6,16 +6,8 @@ pub struct ListRequest<'a> {
 
 impl<'a> ListRequest<'a> {
     pub async fn send(self) -> Result<responses::List> {
-        let Self { client, url, .. } = self;
-        let url = format!("{}/list", url,);
-        client
-            .get(&url)
-            .send()
-            .and_then(|ok| ok.json())
-            .await
-            .map_err(|err| {
-                tracing::error!(err = %err, "error sending");
-                Error::Client { err }
-            })
+        let url = format!("{}/list", self.url);
+        let resp = self.client.get(&url).send().await;
+        check_response(resp).await
     }
 }

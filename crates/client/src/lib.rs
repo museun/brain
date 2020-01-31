@@ -6,6 +6,7 @@ type Result<T> = std::result::Result<T, Error>;
 pub mod requests;
 use requests::*;
 
+#[derive(Clone)]
 pub struct Client {
     host: String,
     client: reqwest::Client,
@@ -19,41 +20,45 @@ impl Client {
         }
     }
 
-    pub fn generate<'a>(&'a mut self) -> GenerateRequest<'a> {
+    pub fn generate<'a>(&'a mut self, brain: impl ToString) -> GenerateRequest<'a> {
         GenerateRequest {
             url: &self.host,
             client: &mut self.client,
-            brain: None,
+            brain: brain.to_string(),
             context: None,
             min: None,
             max: None,
         }
     }
 
-    pub fn train<'a>(&'a mut self) -> TrainRequest<'a> {
+    pub fn train<'a>(&'a mut self, brain: impl ToString, data: impl ToString) -> TrainRequest<'a> {
         TrainRequest {
             url: &self.host,
             client: &mut self.client,
-            brain: None,
-            data: None,
+            brain: brain.to_string(),
+            data: data.to_string(),
         }
     }
 
-    pub fn new_brain<'a>(&'a mut self) -> NewBrainRequest<'a> {
+    pub fn new_brain<'a>(
+        &'a mut self,
+        brain: impl ToString,
+        brain_file: impl ToString,
+    ) -> NewBrainRequest<'a> {
         NewBrainRequest {
             url: &self.host,
             client: &mut self.client,
-            brain: None,
-            brain_file: None,
+            brain: brain.to_string(),
+            brain_file: brain_file.to_string(),
             depth: None,
         }
     }
 
-    pub fn save<'a>(&'a mut self) -> SaveRequest<'a> {
+    pub fn save<'a>(&'a mut self, brain: impl ToString) -> SaveRequest<'a> {
         SaveRequest {
             url: &self.host,
             client: &mut self.client,
-            brain: None,
+            brain: brain.to_string(),
         }
     }
 
@@ -64,3 +69,6 @@ impl Client {
         }
     }
 }
+
+#[cfg(test)]
+mod tests;

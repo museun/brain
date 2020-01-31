@@ -9,16 +9,28 @@ pub struct Generated {
     pub data: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Saved {
     pub name: String,
     pub time: Duration,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+impl PartialEq for Saved {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Trained {
     pub data: String,
     pub time: Duration,
+}
+
+impl PartialEq for Trained {
+    fn eq(&self, other: &Self) -> bool {
+        self.data == other.data
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

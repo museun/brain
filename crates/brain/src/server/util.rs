@@ -1,7 +1,6 @@
-use super::models::{self, Error};
+use super::models::Error;
 use super::server::{BrainDb, Topics};
 
-use std::convert::Infallible;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -12,20 +11,17 @@ use warp::{
     reply, Filter, Rejection, Reply,
 };
 
+type JsonResult = Result<reply::WithStatus<reply::Json>, Rejection>;
+
 #[derive(Debug)]
-struct AlreadyExistsReject {
-    name: String,
+struct BadRequest {
+    error: Error,
 }
 
-impl Reject for AlreadyExistsReject {}
-
-type JsonResult = Result<reply::WithStatus<reply::Json>, Infallible>;
+impl Reject for BadRequest {}
 
 pub fn error(error: Error) -> JsonResult {
-    return Ok(reply::with_status(
-        reply::json(&error),
-        StatusCode::BAD_REQUEST,
-    ));
+    Err(reject::custom(BadRequest { error }))
 }
 
 pub fn okay<T>(item: T) -> JsonResult
@@ -43,12 +39,13 @@ where
 }
 
 pub async fn recover(err: Rejection) -> Result<impl Reply, Rejection> {
-    if let Some(AlreadyExistsReject { name }) = err.find() {
+    if let Some(BadRequest { error }) = err.find() {
         return Ok(reply::with_status(
-            reply::json(&models::Error::AlreadyExists { name: name.clone() }),
+            reply::json(&error),
             StatusCode::BAD_REQUEST,
         ));
     }
+
     Err(err)
 }
 
@@ -67,7 +64,9 @@ pub async fn expect_unique(
     name: String,
 ) -> Result<(Arc<Topics>, String), Rejection> {
     if topics.brains.lock().await.contains_key(&name) {
-        return Err(reject::custom(AlreadyExistsReject { name }));
+        return Err(reject::custom(BadRequest {
+            error: Error::AlreadyExists { name },
+        }));
     }
     Ok((topics, name))
 }

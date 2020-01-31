@@ -1,2 +1,5 @@
 [workspace]
 members = ["crates/*"]
+
+[profile.release.build-override]
+opt-level = 0

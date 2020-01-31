@@ -7,7 +7,7 @@ mod error;
 pub use error::Error;
 
 mod markov;
-pub use markov::Markov;
+pub use self::markov::Markov;
 
 mod linkset;
 
