@@ -148,6 +148,9 @@ name = "bytes"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "130aac562c0dd69c56b3b1cc8ffd2e17be31d0b6c25b61c96b76231aa23e39e1"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "c2-chacha"
@@ -553,11 +556,12 @@ checksum = "cd179ae861f0c2e53da70d892f5f3029f9594be0c41dc5269cd371691b1dc2f9"
 
 [[package]]
 name = "httptest"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1727dd19273ac05e6a43c4d6a2d30f3838866c20d2e6c5e5fb2842f1ffc055bd"
+checksum = "9590b5f4cd23249638f1f31d692ac2e6417518cebc7dda251eb76b08a5a50f96"
 dependencies = [
  "bstr",
+ "bytes",
  "crossbeam-channel",
  "futures",
  "http",
@@ -688,6 +692,7 @@ name = "markov"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "bytes",
  "hashbrown",
  "log",
  "rand 0.7.3",
