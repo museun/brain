@@ -118,11 +118,9 @@ impl Markov {
     }
 
     fn train_words(&mut self, words: Vec<Vec<u8>>) {
+        self.starts.insert(words[0].clone());
+
         let depth = std::cmp::min(self.depth, words.len() - 1);
-
-        let start = &words[0];
-        self.starts.insert(start.clone());
-
         for width in 1..=depth {
             for window in words.windows(width + 1) {
                 let tail = window.last().expect("get last window").clone();
@@ -165,7 +163,6 @@ impl Markov {
         for (width, link_set) in link_sets {
             for mut link in link_set.iter().cloned() {
                 link.count *= width;
-
                 match pooled_links.iter_mut().find(|l| l.token == link.token) {
                     Some(existing) => existing.merge(&link),
                     None => pooled_links.push(link),
