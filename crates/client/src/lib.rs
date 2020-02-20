@@ -3,6 +3,9 @@ pub use error::Error;
 
 type Result<T> = std::result::Result<T, Error>;
 
+#[doc(inline)]
+pub use types;
+
 pub mod requests;
 use requests::*;
 
