@@ -23,7 +23,7 @@ where
     T: serde::de::DeserializeOwned,
 {
     let resp = resp.map_err(|err| Error::Client { err })?;
-    if !dbg!(resp.status()).is_success() {
+    if !resp.status().is_success() {
         let error = Error::Server {
             err: resp
                 .json::<types::Error>()

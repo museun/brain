@@ -35,8 +35,7 @@ impl<'a> GenerateRequest<'a> {
                 max: self.max,
             })
             .send()
-            .await;
-        dbg!(&resp);
+            .await;        
         check_response(resp).await
     }
 }
