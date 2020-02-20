@@ -15,9 +15,9 @@ async fn generate() {
     for (k, v) in vec![
         (
             vec![
-                kv("context", "testing this"),
-                kv("min", "5"),
-                kv("max", "30"),
+                KV::new("context", "testing this"),
+                KV::new("min", "5"),
+                KV::new("max", "30"),
             ],
             Client::new(&url)
                 .generate("foo")
@@ -26,11 +26,11 @@ async fn generate() {
                 .context("testing this"),
         ),
         (
-            vec![kv("context", "testing this")],
+            vec![KV::new("context", "testing this")],
             Client::new(&url).generate("foo").context("testing this"),
         ),
         (
-            vec![kv("min", "5"), kv("max", "30")],
+            vec![KV::new("min", "5"), KV::new("max", "30")],
             Client::new(&url).generate("foo").min(5_usize).max(30_usize),
         ),
     ] {

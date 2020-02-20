@@ -12,15 +12,15 @@ markov = { path = "../markov" }
 types = { path = "../types" }
 
 anyhow = "1.0.26"
-flexi_logger = { version = "0.14.6", features = ["colors"] }
-futures = { version = "0.3.1", default-features = false }
+flexi_logger = { version = "0.14.8", features = ["colors"] }
+futures = { version = "0.3.4", default-features = false }
 hashbrown = { version = "0.7.0", features = ["serde"] }
 indicatif = "0.14.0"
 log = "0.4.8"
 pico-args = "0.3.1"
 rand = "0.7.3"
 serde = { version = "1.0.104", features = ["derive"] }
-serde_json = "1.0.45"
+serde_json = "1.0.48"
 tokio = { version = "0.2.11", default-features = false, features = ["macros", "fs", "rt-threaded", "io-util"] } 
 toml = { version = "0.5.6", features = ["preserve_order"] }
 warp = { version = "0.2.1", default-features = false }

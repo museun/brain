@@ -22,7 +22,7 @@ pub fn load(input: impl AsRef<Path>) -> Result<Markov, Error> {
     let input = input.as_ref();
     log::debug!("loading from file: '{}'", input.display());
     let reader = std::fs::File::open(input)?;
-    let reader = snap::Reader::new(reader);
+    let reader = snap::read::FrameDecoder::new(reader);
     let markov: Markov = bincode::deserialize_from(reader).map_err(Error::Deserialize)?;
     log::trace!("done deserializing data, got: {}", markov.name);
     Ok(markov)
@@ -32,7 +32,7 @@ pub fn save(markov: &Markov, output: impl AsRef<Path>) -> Result<(), Error> {
     let output = output.as_ref();
     log::debug!("saving '{}' to file: {}", markov.name, output.display());
     let writer = std::fs::File::create(output)?;
-    let writer = snap::Writer::new(writer);
+    let writer = snap::write::FrameEncoder::new(writer);
     bincode::serialize_into(writer, &markov).map_err(Error::Serialize)?;
     log::trace!("done serializing data");
     Ok(())
