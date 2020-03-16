@@ -11,8 +11,8 @@ verbose_test = []
 markov = { path = "../markov" }
 types = { path = "../types" }
 
-anyhow = "1.0.26"
-flexi_logger = { version = "0.14.8", features = ["colors"] }
+alto_logger = "0.1.1"
+anyhow = "1.0.27"
 futures = { version = "0.3.4", default-features = false }
 hashbrown = { version = "0.7.0", features = ["serde"] }
 indicatif = "0.14.0"
@@ -21,12 +21,14 @@ pico-args = "0.3.1"
 rand = "0.7.3"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.48"
-tokio = { version = "0.2.11", default-features = false, features = ["macros", "fs", "rt-threaded", "io-util"] } 
+tokio = { version = "0.2.13", default-features = false, features = ["macros", "fs", "rt-threaded", "io-util"] } 
 toml = { version = "0.5.6", features = ["preserve_order"] }
-warp = { version = "0.2.1", default-features = false }
+
+# TODO http server should be optional
+warp = { version = "0.2.2", default-features = false }
 
 [dev-dependencies]
 bytes = "0.5.4"
 matches = "0.1.8"
 tempdir = "0.3.7"
-tokio = { version = "0.2.11", default-features = false, features = ["macros"] }
+tokio = { version = "0.2.13", default-features = false, features = ["macros"] }

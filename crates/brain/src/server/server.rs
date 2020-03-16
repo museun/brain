@@ -68,7 +68,8 @@ impl Server {
             .or(routes::new(Arc::clone(&brains)))
             .or(routes::list(Arc::clone(&brains)));
 
-        let addr = format!("127.0.0.1:{}", port);
+        // TODO allow this address to be set from the flags
+        let addr = format!("0.0.0.0:{}", port);
         let addr = addr
             .parse::<std::net::SocketAddr>()
             .map_err(|err| {

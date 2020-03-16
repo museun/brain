@@ -15,18 +15,7 @@ type Result<T> = std::result::Result<T, Error>;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    flexi_logger::Logger::with_env_or_str("brain=trace,markov=trace")
-        .format(|w, _, record| {
-            let level = record.level();
-            write!(
-                w,
-                "{} {}",
-                flexi_logger::style(level, level),
-                flexi_logger::style(level, record.args())
-            )
-        })
-        .start()
-        .unwrap();
+    alto_logger::init(alto_logger::Style::MultiLine, Default::default()).expect("init logger");
 
     let load::Arguments {
         port,
