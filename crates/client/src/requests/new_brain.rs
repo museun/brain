@@ -2,7 +2,7 @@ use super::*;
 
 pub struct NewBrainRequest<'a> {
     pub(crate) url: &'a str,
-    pub(crate) client: &'a mut reqwest::Client,
+    pub(crate) client: &'a  reqwest::Client,
     pub(crate) brain: String,
     pub(crate) brain_file: String,
     pub(crate) depth: Option<usize>,

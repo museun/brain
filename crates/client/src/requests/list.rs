@@ -1,7 +1,7 @@
 use super::*;
 pub struct ListRequest<'a> {
     pub(crate) url: &'a str,
-    pub(crate) client: &'a mut reqwest::Client,
+    pub(crate) client: &'a reqwest::Client,
 }
 
 impl<'a> ListRequest<'a> {

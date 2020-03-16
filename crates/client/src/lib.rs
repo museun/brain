@@ -23,10 +23,10 @@ impl Client {
         }
     }
 
-    pub fn generate<'a>(&'a mut self, brain: impl ToString) -> GenerateRequest<'a> {
+    pub fn generate<'a>(&'a self, brain: impl ToString) -> GenerateRequest<'a> {
         GenerateRequest {
             url: &self.host,
-            client: &mut self.client,
+            client: &self.client,
             brain: brain.to_string(),
             context: None,
             min: None,
@@ -34,41 +34,41 @@ impl Client {
         }
     }
 
-    pub fn train<'a>(&'a mut self, brain: impl ToString, data: impl ToString) -> TrainRequest<'a> {
+    pub fn train<'a>(&'a self, brain: impl ToString, data: impl ToString) -> TrainRequest<'a> {
         TrainRequest {
             url: &self.host,
-            client: &mut self.client,
+            client: &self.client,
             brain: brain.to_string(),
             data: data.to_string(),
         }
     }
 
     pub fn new_brain<'a>(
-        &'a mut self,
+        &'a self,
         brain: impl ToString,
         brain_file: impl ToString,
     ) -> NewBrainRequest<'a> {
         NewBrainRequest {
             url: &self.host,
-            client: &mut self.client,
+            client: &self.client,
             brain: brain.to_string(),
             brain_file: brain_file.to_string(),
             depth: None,
         }
     }
 
-    pub fn save<'a>(&'a mut self, brain: impl ToString) -> SaveRequest<'a> {
+    pub fn save<'a>(&'a self, brain: impl ToString) -> SaveRequest<'a> {
         SaveRequest {
             url: &self.host,
-            client: &mut self.client,
+            client: &self.client,
             brain: brain.to_string(),
         }
     }
 
-    pub fn list<'a>(&'a mut self) -> ListRequest<'a> {
+    pub fn list<'a>(&'a self) -> ListRequest<'a> {
         ListRequest {
             url: &self.host,
-            client: &mut self.client,
+            client: &self.client,
         }
     }
 }
