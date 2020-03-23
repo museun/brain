@@ -35,7 +35,7 @@ impl Markov {
         let mut desired = rng.gen_range(1, 3);
         let mut last = false;
 
-        log::trace!("min: {}, max: {}, query: {:?}", min, max, query);
+        log::trace!(target: "brain", "min: {}, max: {}, query: {:?}", min, max, query);
 
         let mut words: Vec<Vec<u8>> = vec![];
         let mut count = 0;
@@ -54,7 +54,7 @@ impl Markov {
             }
 
             if words.len() >= max {
-                log::trace!("exceeding max, words: {}, max: {}", words.len(), max);
+                log::trace!(target: "brain", "exceeding max, words: {}, max: {}", words.len(), max);
                 break;
             }
 
@@ -70,18 +70,18 @@ impl Markov {
                 words.push(word.clone());
                 last = false;
                 if words.len() >= max {
-                    log::trace!("exceeding max, inner: words: {}, max: {}", words.len(), max);
+                    log::trace!(target: "brain", "exceeding max, inner: words: {}, max: {}", words.len(), max);
                     break;
                 }
             }
 
             if words.len() >= min {
-                log::trace!("exceeding min, words: {}, min: {}", words.len(), min);
+                log::trace!(target: "brain", "exceeding min, words: {}, min: {}", words.len(), min);
                 break;
             }
 
             if count == words.len() {
-                log::trace!("no progress, words: {}, count: {}", words.len(), count);
+                log::trace!(target: "brain", "no progress, words: {}, count: {}", words.len(), count);
                 break;
             }
             count = words.len();
@@ -155,7 +155,7 @@ impl Markov {
         let mut pooled_links = match link_sets.peek() {
             Some((_, link_set)) => Vec::<Link>::with_capacity(link_set.len()),
             _ => {
-                log::trace!("no next link");
+                log::trace!(target: "brain", "no next link");
                 return Token::End;
             }
         };

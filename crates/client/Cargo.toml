@@ -8,10 +8,10 @@ edition = "2018"
 types = { path = "../types" }
 
 reqwest = { version = "0.10.4", default-features = false, features = ["json"] }
-serde = "1.0.104"
+serde = "1.0.105"
 
 [dev-dependencies]
-hashbrown = "0.7.0"
+hashbrown = "0.7.1"
 httptest = "0.12.2"
 matches = "0.1.8"
 serde_json = "1.0.48"

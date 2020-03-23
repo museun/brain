@@ -56,7 +56,7 @@ impl Stats {
         {
             let duration = self.start.elapsed();
             if self.points.send(Sample { duration, count }).is_err() {
-                log::warn!("sampling disabled");
+                log::warn!(target: "brain", "sampling disabled");
                 self.sampling.store(false, Ordering::SeqCst)
             }
         }

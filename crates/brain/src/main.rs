@@ -26,9 +26,9 @@ async fn main() -> anyhow::Result<()> {
         args::Command::Load(args) => match load::load(args).await {
             Ok(args) => args,
             Err(err) => {
-                log::error!("cannot load configuration file at 'brain.toml': {}", err);
-                log::error!("verify the file exists and well-formed.");
-                log::error!("here's a sample config:");
+                log::error!(target: "brain", "cannot load configuration file at 'brain.toml': {}", err);
+                log::error!(target: "brain", "verify the file exists and well-formed.");
+                log::error!(target: "brain", "here's a sample config:");
                 config::Config::print_default();
                 std::process::exit(1);
             }

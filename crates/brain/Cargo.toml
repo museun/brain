@@ -11,15 +11,15 @@ verbose_test = []
 markov = { path = "../markov" }
 types = { path = "../types" }
 
-alto_logger = "0.1.1"
+alto_logger = "0.1.2"
 anyhow = "1.0.27"
 futures = { version = "0.3.4", default-features = false }
-hashbrown = { version = "0.7.0", features = ["serde"] }
+hashbrown = { version = "0.7.1", features = ["serde"] }
 indicatif = "0.14.0"
 log = "0.4.8"
 pico-args = "0.3.1"
 rand = "0.7.3"
-serde = { version = "1.0.104", features = ["derive"] }
+serde = { version = "1.0.105", features = ["derive"] }
 serde_json = "1.0.48"
 tokio = { version = "0.2.13", default-features = false, features = ["macros", "fs", "rt-threaded", "io-util"] } 
 toml = { version = "0.5.6", features = ["preserve_order"] }

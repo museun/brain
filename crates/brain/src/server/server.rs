@@ -73,12 +73,12 @@ impl Server {
         let addr = addr
             .parse::<std::net::SocketAddr>()
             .map_err(|err| {
-                log::error!("cannot parse: '{}': {}", addr, err);
+                log::error!(target: "brain", "cannot parse: '{}': {}", addr, err);
                 err
             })
             .unwrap();
 
-        log::info!("listening on: {}", addr);
+        log::info!(target: "brain", "listening on: {}", addr);
         warp::serve(routes).run(addr).await;
     }
 }

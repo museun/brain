@@ -23,7 +23,7 @@ pub async fn generate(db: BrainDb, opts: models::input::GenerateOptions) -> Resu
             data: data.to_string(),
         }),
         None => {
-            log::warn!("not enough state");
+            log::warn!(target: "brain", "not enough state");
             error(Error::NotEnoughState)
         }
     }

@@ -28,10 +28,10 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
         name,
     } = parse_args(args)?;
 
-    log::debug!("counting lines");
+    log::debug!(target: "brain", "counting lines");
     let count = line_count(&input).await?;
     // TODO Humanize this
-    log::info!("training {} lines", count);
+    log::info!(target: "brain", "training {} lines", count);
 
     let (mut stats, samples) = Stats::new(count / PROGRESS_MAX);
     let sync = display_progress_bar(samples);
@@ -41,7 +41,7 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
 
     // wait for the progress bar task to end
     sync.await.unwrap().finish_and_clear();
-    log::info!(
+    log::info!(target: "brain",
         "total lines: {}, took: {:.2?}, {:.3} lines per second",
         report.count,
         report.duration,
@@ -50,10 +50,10 @@ pub async fn train(args: pico_args::Arguments) -> anyhow::Result<()> {
 
     let now = Instant::now();
     markov::save(&markov, &output)?;
-    log::debug!("saving took: {:.2?}", now.elapsed());
+    log::debug!(target: "brain", "saving took: {:.2?}", now.elapsed());
 
     let size = file_size_as_kib(&output).await?;
-    log::info!("{} file size: {:.2} KiB", output.display(), size);
+    log::info!(target: "brain", "{} file size: {:.2} KiB", output.display(), size);
 
     print_append_message(&markov.name, output, depth, input);
 
@@ -154,12 +154,12 @@ fn print_append_message(
     })
     .unwrap();
 
-    log::info!("add this to brain.toml");
+    log::info!(target: "brain", "add this to brain.toml");
     println!();
     println!("# generated from {}", input.as_ref().display());
     println!("# depth: {}", depth.unwrap_or(5));
     println!("{}", toml);
-    log::info!("end of config");
+    log::info!(target: "brain", "end of config");
 }
 
 async fn train_brain(
