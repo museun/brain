@@ -68,8 +68,8 @@ impl Server {
             .or(routes::new(Arc::clone(&brains)))
             .or(routes::list(Arc::clone(&brains)));
 
-        // TODO allow this address to be set from the flags
-        let addr = format!("0.0.0.0:{}", port);
+        let address = std::env::var("BRAIN_LISTEN_HOST").unwrap_or_else(|_| "127.0.0.1".into());
+        let addr = format!("{}:{}", address, port);
         let addr = addr
             .parse::<std::net::SocketAddr>()
             .map_err(|err| {
